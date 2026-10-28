@@ -1,14 +1,481 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-   <title>My Website</title>
-   <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Let's Play Bingo — Number Caller</title>
+<style>
+:root {
+  --bg: #f3f5f9;
+  --panel: #ffffff;
+  --ink: #202b3c;
+  --muted: #718096;
+  --blue: #2864dc;
+  --line: #e3e8f0;
+  --green: #20a36b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+header {
+  background: white;
+  border-bottom: 1px solid var(--line);
+  padding: 17px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo {
+  background: var(--blue); color: white; border-radius: 12px;
+  width: 43px; height: 43px; display: grid; place-items: center;
+  font-size: 23px; font-weight: 900;
+}
+h1 { font-size: 21px; margin: 0; letter-spacing: -.6px; }
+.subtitle { font-size: 12px; color: var(--muted); margin-top: 3px; }
+main { max-width: 1200px; margin: 26px auto; padding: 0 18px 35px; }
+.toolbar {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 12px; margin-bottom: 18px;
+}
+.mode-switch {
+  display: flex; align-items: center; gap: 11px;
+  background: white; border: 1px solid var(--line);
+  padding: 10px 14px; border-radius: 12px; font-size: 13px;
+}
+.switch {
+  width: 43px; height: 24px; border: 0; border-radius: 20px;
+  background: #b7c1cf; padding: 3px; cursor: pointer;
+  transition: background .2s;
+}
+.switch span {
+  display: block; width: 18px; height: 18px; border-radius: 50%;
+  background: white; transition: transform .2s;
+}
+.switch[aria-checked="true"] { background: var(--green); }
+.switch[aria-checked="true"] span { transform: translateX(19px); }
+.mode-label { font-weight: 750; }
+.mode-help { color: var(--muted); font-size: 12px; }
+.btn {
+  border: 0; border-radius: 9px; padding: 11px 17px;
+  cursor: pointer; font: inherit; font-weight: 700; font-size: 13px;
+  transition: transform .12s, opacity .12s;
+}
+.btn:active { transform: scale(.97); }
+.primary { background: var(--blue); color: white; }
+.secondary { background: #edf2f8; color: var(--ink); }
+.danger { background: #fff0f0; color: #bd3434; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.layout {
+  display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 18px; align-items: start;
+}
+.panel {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 16px; padding: 20px;
+  box-shadow: 0 3px 12px #1a315508;
+}
+.panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin-bottom: 17px;
+}
+.panel-head h2 { font-size: 15px; margin: 0; }
+.eyebrow {
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: 1.4px; font-size: 10px; font-weight: 800;
+}
+.live { color: var(--green); font-size: 11px; font-weight: 800; }
+.live:before {
+  content: ""; display: inline-block; width: 7px; height: 7px;
+  background: currentColor; border-radius: 50%; margin-right: 6px;
+}
+.current-area {
+  background: linear-gradient(145deg,#f0f5ff,#f8faff);
+  border: 1px solid #e2eaff; border-radius: 15px;
+  text-align: center; padding: 23px 12px; margin-bottom: 15px;
+}
+.ball {
+  margin: 12px auto 13px; width: 124px; height: 124px;
+  border-radius: 50%; background: white;
+  border: 8px solid #d9e5ff; color: var(--blue);
+  display: grid; place-items: center;
+  font-size: 43px; font-weight: 900;
+  box-shadow: 0 8px 20px #285bc51c, inset 0 0 0 2px #fff;
+}
+.ball.empty { color: #bac5d6; font-size: 34px; border-style: dashed; }
+.call-name { font-size: 14px; font-weight: 800; }
+.call-sub { font-size: 12px; color: var(--muted); margin-top: 5px; }
+.controls { display: flex; gap: 9px; flex-wrap: wrap; }
+.controls .btn { flex: 1; min-width: 100px; }
+.stats {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 10px; margin-top: 16px;
+}
+.stat {
+  padding: 12px 8px; text-align: center;
+  background: #f7f9fc; border-radius: 10px;
+}
+.stat strong { display: block; font-size: 20px; }
+.stat span { color: var(--muted); font-size: 10px; }
+.history {
+  display: flex; gap: 7px; flex-wrap: wrap;
+  min-height: 38px; margin-top: 12px;
+}
+.history-ball {
+  width: 35px; height: 35px; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 800;
+  font-size: 11px; background: #eef3ff; color: #345cb3;
+}
+.empty-history { color: var(--muted); font-size: 12px; padding: 8px 0; }
+.board {
+  display: grid; grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 6px;
+}
+.col-letter {
+  color: white; border-radius: 8px; padding: 11px 0;
+  text-align: center; font-size: 18px; font-weight: 900;
+  margin-bottom: 2px;
+}
+.col-letter:nth-child(1) { background: #e14b51; }
+.col-letter:nth-child(2) { background: #3278db; }
+.col-letter:nth-child(3) { background: #20a36b; }
+.col-letter:nth-child(4) { background: #e2a02b; }
+.col-letter:nth-child(5) { background: #8058c9; }
+.number {
+  min-width: 0; aspect-ratio: 1 / .87; border-radius: 7px;
+  border: 1px solid #e4e9f1; background: #fafbfd;
+  color: #3a4658; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: background .12s, color .12s;
+}
+.number:hover { border-color: var(--blue); background: #edf3ff; }
+.number.called {
+  color: white; border-color: transparent;
+  background: #2864dc;
+}
+.number.latest { outline: 3px solid #f2c65c; outline-offset: -3px; }
+.number:focus-visible, button:focus-visible {
+  outline: 3px solid #f0b429; outline-offset: 2px;
+}
+.number:disabled { cursor: default; }
+.board-note {
+  margin-top: 13px; padding: 10px 12px; border-radius: 9px;
+  background: #f6f8fb; color: var(--muted); font-size: 11px;
+  line-height: 1.6;
+}
+.board-note.manual { background: #eaf8f0; color: #16774c; }
+.section { margin-top: 18px; }
+.section h3 { font-size: 13px; margin: 0 0 12px; }
+.bottom-actions {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px;
+}
+footer {
+  text-align: center; color: #8490a1; font-size: 11px; padding: 10px 16px 25px;
+}
+@media(max-width:760px) {
+  header { padding: 14px 16px; }
+  main { margin-top: 17px; padding: 0 12px 25px; }
+  .layout { grid-template-columns: 1fr; }
+  .panel { padding: 15px; }
+  .ball { width: 108px; height: 108px; font-size: 37px; }
+  .number { font-size: 12px; }
+}
+@media(max-width:380px) {
+  .board { gap: 4px; }
+  .number { font-size: 11px; }
+  .panel { padding: 11px; }
+}
+@media print {
+  header .subtitle, .toolbar, .controls, .bottom-actions, footer { display: none; }
+  body { background: white; }
+  .layout { grid-template-columns: 1fr 1fr; }
+  .panel { box-shadow: none; }
+}
+</style>
 </head>
 <body>
-   <h1>Welcome to My Website</h1>
-   <p>This is a paragraph.</p>
+<header>
+  <div class="brand">
+    <div class="logo">B</div>
+    <div>
+      <h1>Let's Play Bingo!</h1>
+      <div class="subtitle">Your game, your numbers, your fun.</div>
+    </div>
+  </div>
+  <span class="live" id="status">READY TO PLAY</span>
+</header>
+
+<main>
+  <div class="toolbar">
+    <div class="mode-switch">
+      <button id="modeToggle" class="switch" role="switch"
+        aria-checked="false" aria-label="Toggle manual mode"><span></span></button>
+      <div>
+        <div class="mode-label" id="modeLabel">Automatic Mode</div>
+        <div class="mode-help" id="modeHelp">Call numbers randomly</div>
+      </div>
+    </div>
+    <button class="btn secondary" id="shuffleBtn">↻ Shuffle remaining</button>
+  </div>
+
+  <div class="layout">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Current Call</h2>
+        <span class="eyebrow">75 BALL BINGO</span>
+      </div>
+
+      <div class="current-area">
+        <div class="eyebrow">NOW CALLING</div>
+        <div class="ball empty" id="currentBall" aria-live="polite">BINGO</div>
+        <div class="call-name" id="callName">Ready for the first ball?</div>
+        <div class="call-sub" id="callSub">Press Start Game to begin</div>
+      </div>
+
+      <div class="controls">
+        <button class="btn primary" id="callBtn">▶ Start Game</button>
+        <button class="btn secondary" id="undoBtn" disabled>↶ Undo</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><strong id="count">0</strong><span>NUMBERS CALLED</span></div>
+        <div class="stat"><strong id="remaining">75</strong><span>REMAINING</span></div>
+        <div class="stat"><strong id="progress">0%</strong><span>COMPLETED</span></div>
+      </div>
+
+      <div class="section">
+        <div class="panel-head">
+          <h2>Previous Calls</h2>
+          <span class="eyebrow" id="historyCount">0 calls</span>
+        </div>
+        <div class="history" id="history">
+          <div class="empty-history">Your called numbers will appear here.</div>
+        </div>
+      </div>
+
+      <div class="bottom-actions">
+        <button class="btn secondary" id="repeatBtn" disabled>↻ Repeat last</button>
+        <button class="btn secondary" id="speakBtn">🔊 Voice: Off</button>
+        <button class="btn danger" id="resetBtn">Reset Game</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Number Board</h2>
+        <span class="eyebrow" id="boardLabel">1–75</span>
+      </div>
+      <div class="board" id="board" aria-label="Bingo number board"></div>
+      <div class="board-note" id="boardNote">
+        Start the game to call a random number. Called numbers are highlighted in blue.
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  Let's Play Bingo · Independent, single-file bingo caller · No account required
+</footer>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const LETTERS = ['B','I','N','G','O'];
+  const COLORS = ['#e14b51','#3278db','#20a36b','#e2a02b','#8058c9'];
+
+  let called = [];
+  let manual = false;
+  let started = false;
+  let voice = false;
+  let shuffledOrder = [];
+  let latest = null;
+
+  function letter(n) {
+    if (n <= 15) return 'B';
+    if (n <= 30) return 'I';
+    if (n <= 45) return 'N';
+    if (n <= 60) return 'G';
+    return 'O';
+  }
+
+  function shuffledNumbers() {
+    const a = Array.from({length:75}, (_,i) => i + 1)
+      .filter(n => !called.includes(n));
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function renderBoard() {
+    const board = $('board');
+    board.innerHTML = '';
+    LETTERS.forEach((l, col) => {
+      const head = document.createElement('div');
+      head.className = 'col-letter';
+      head.textContent = l;
+      head.style.background = COLORS[col];
+      board.appendChild(head);
+    });
+
+    for (let row = 0; row < 15; row++) {
+      LETTERS.forEach((l, col) => {
+        const n = col * 15 + row + 1;
+        const btn = document.createElement('button');
+        btn.className = 'number';
+        btn.textContent = n;
+        btn.setAttribute('aria-label', `${l}-${n}${called.includes(n) ? ', called' : ''}`);
+        btn.setAttribute('aria-pressed', String(called.includes(n)));
+        if (called.includes(n)) btn.classList.add('called');
+        if (n === latest) btn.classList.add('latest');
+        btn.title = manual
+          ? `Manually mark ${l}-${n}`
+          : `Click to mark ${l}-${n} as called`;
+        btn.addEventListener('click', () => toggleNumber(n));
+        board.appendChild(btn);
+      });
+    }
+  }
+
+  function announce(n) {
+    if (!voice || !('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(`${letter(n)}, ${n}`);
+    utterance.rate = 0.9;
+    speechSynthesis.speak(utterance);
+  }
+
+  function callNumber(n) {
+    if (called.includes(n) || called.length >= 75) return;
+    called.push(n);
+    latest = n;
+    started = true;
+    shuffledOrder = shuffledNumbers();
+    update();
+    announce(n);
+  }
+
+  function toggleNumber(n) {
+    if (called.includes(n)) {
+      called = called.filter(x => x !== n);
+      latest = called.length ? called[called.length - 1] : null;
+    } else {
+      callNumber(n);
+      return;
+    }
+    shuffledOrder = shuffledNumbers();
+    update();
+  }
+
+  function update() {
+    const n = latest;
+    $('currentBall').textContent = n ? `${letter(n)}-${n}` : 'BINGO';
+    $('currentBall').classList.toggle('empty', !n);
+    $('callName').textContent = n
+      ? `${letter(n)} — ${n}`
+      : 'Ready for the first ball?';
+    $('callSub').textContent = n
+      ? `Number ${n} of 75 possible balls`
+      : 'Press Start Game to begin';
+    $('count').textContent = called.length;
+    $('remaining').textContent = 75 - called.length;
+    $('progress').textContent = `${Math.round(called.length / 75 * 100)}%`;
+    $('historyCount').textContent = `${called.length} calls`;
+    $('status').textContent = called.length === 75
+      ? 'GAME COMPLETE'
+      : started ? 'GAME IN PROGRESS' : 'READY TO PLAY';
+
+    $('history').innerHTML = '';
+    if (!called.length) {
+      $('history').innerHTML = '<div class="empty-history">Your called numbers will appear here.</div>';
+    } else {
+      called.slice().reverse().slice(0,20).forEach(num => {
+        const ball = document.createElement('div');
+        ball.className = 'history-ball';
+        ball.textContent = `${letter(num)}-${num}`;
+        ball.title = `Called ${letter(num)} ${num}`;
+        $('history').appendChild(ball);
+      });
+    }
+
+    $('callBtn').disabled = called.length === 75 || manual;
+    $('callBtn').textContent = called.length === 75
+      ? '✓ All Numbers Called'
+      : called.length ? '● Call Next Number' : '▶ Start Game';
+    $('undoBtn').disabled = called.length === 0;
+    $('repeatBtn').disabled = !latest;
+    $('boardNote').className = 'board-note' + (manual ? ' manual' : '');
+    $('boardNote').textContent = manual
+      ? 'MANUAL MODE ON — Click any number to mark it as called. Click it again to unmark it. No random calls are made.'
+      : 'AUTOMATIC MODE — Press Call Next Number to draw a random ball. You can also click board numbers to mark or unmark them.';
+    $('modeToggle').setAttribute('aria-checked', String(manual));
+    $('modeLabel').textContent = manual ? 'Manual Mode' : 'Automatic Mode';
+    $('modeHelp').textContent = manual
+      ? 'You control every number'
+      : 'Call numbers randomly';
+
+    renderBoard();
+  }
+
+  $('modeToggle').addEventListener('click', () => {
+    manual = !manual;
+    update();
+  });
+
+  $('callBtn').addEventListener('click', () => {
+    if (manual) return;
+    if (!started) started = true;
+    const remaining = shuffledNumbers();
+    if (remaining.length) callNumber(remaining[0]);
+  });
+
+  $('undoBtn').addEventListener('click', () => {
+    if (!called.length) return;
+    called.pop();
+    latest = called.length ? called[called.length - 1] : null;
+    shuffledOrder = shuffledNumbers();
+    update();
+  });
+
+  $('repeatBtn').addEventListener('click', () => {
+    if (latest) announce(latest);
+  });
+
+  $('speakBtn').addEventListener('click', () => {
+    voice = !voice;
+    $('speakBtn').textContent = voice ? '🔊 Voice: On' : '🔊 Voice: Off';
+    if (!voice && 'speechSynthesis' in window) speechSynthesis.cancel();
+    if (voice && !('speechSynthesis' in window)) {
+      voice = false;
+      $('speakBtn').textContent = '🔊 Voice unavailable';
+    }
+  });
+
+  $('shuffleBtn').addEventListener('click', () => {
+    shuffledOrder = shuffledNumbers();
+    $('shuffleBtn').textContent = '✓ Shuffled!';
+    setTimeout(() => $('shuffleBtn').textContent = '↻ Shuffle remaining', 900);
+  });
+
+  $('resetBtn').addEventListener('click', () => {
+    if (called.length && !confirm('Reset the game and clear all called numbers?')) return;
+    called = [];
+    latest = null;
+    started = false;
+    shuffledOrder = shuffledNumbers();
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    update();
+  });
+
+  shuffledOrder = shuffledNumbers();
+  update();
+})();
+</script>
 </body>
 </html>
