@@ -419,6 +419,68 @@ footer {
   }
 }
 
+.game-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.info-card {
+  min-width: 0;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.info-card label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 7px;
+}
+
+.info-card input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: #f8faff;
+  border-radius: 7px;
+  padding: 8px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.winner-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#confettiBtn {
+  border: 0;
+  background: #8058c9;
+  color: white;
+  border-radius: 7px;
+  padding: 9px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+#confettiBtn:hover {
+  background: #6941b3;
+}
+
+@media (max-width: 480px) {
+  .game-info {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 </style>
 </head>
@@ -446,6 +508,31 @@ footer {
     </div>
     <button class="btn secondary" id="shuffleBtn">↻ Shuffle remaining</button>
   </div>
+  
+<section class="game-info">
+  <div class="info-card">
+    <label for="playingFor">🎯 Playing for</label>
+    <input
+      id="playingFor"
+      type="text"
+      placeholder="Enter the prize or occasion..."
+    >
+  </div>
+
+  <div class="info-card winner-card">
+    <label for="lastWinner">🏆 Last game's winner</label>
+    <div class="winner-row">
+      <input
+        id="lastWinner"
+        type="text"
+        placeholder="Enter winner's name..."
+      >
+      <button id="confettiBtn" type="button">🎉 Confetti!</button>
+    </div>
+    <div id="confettiArea" aria-live="polite"></div>
+  </div>
+</section>
+
 
   <div class="layout">
     <section class="panel">
@@ -701,5 +788,70 @@ footer {
   update();
 })();
 </script>
+  
+<script>
+(() => {
+  const button = document.getElementById('confettiBtn');
+  const area = document.getElementById('confettiArea');
+
+  if (!button || !area) return;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .confetti-piece {
+      position: fixed;
+      top: -15px;
+      width: 8px;
+      height: 12px;
+      z-index: 9999;
+      pointer-events: none;
+      animation: bingoConfettiFall var(--duration) linear forwards;
+    }
+
+    @keyframes bingoConfettiFall {
+      to {
+        transform: translate(var(--drift), 105vh) rotate(900deg);
+        opacity: 0.2;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .confetti-piece { animation-duration: 1.5s !important; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  button.addEventListener('click', () => {
+    const colors = [
+      '#2864dc', '#20a36b', '#e14b51',
+      '#e2a02b', '#8058c9', '#ff75b5'
+    ];
+
+    // Remove any previous animation pieces.
+    document.querySelectorAll('.confetti-piece').forEach(el => el.remove());
+
+    for (let i = 0; i < 100; i++) {
+      const piece = document.createElement('span');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.background = colors[
+        Math.floor(Math.random() * colors.length)
+      ];
+      piece.style.setProperty('--drift', (Math.random() * 200 - 100) + 'px');
+      piece.style.setProperty('--duration', (2 + Math.random() * 2) + 's');
+      piece.style.animationDelay = Math.random() * 0.8 + 's';
+      document.body.appendChild(piece);
+
+      piece.addEventListener('animationend', () => piece.remove());
+    }
+
+    button.textContent = '🎉 Celebrate again!';
+    setTimeout(() => {
+      button.textContent = '🎉 Confetti!';
+    }, 2500);
+  });
+})();
+</script>
+
 </body>
 </html>
