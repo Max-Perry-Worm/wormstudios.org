@@ -549,6 +549,110 @@ footer {
     font-size: 11px;
   }
 }
+  
+/* Bingo! */
+.verify-section {
+  margin-top: 12px;
+}
+
+.verify-panel {
+  display: none;
+  margin-top: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #f8faff;
+}
+
+.verify-panel.open {
+  display: block;
+}
+
+.verify-panel h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.verify-description {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.verify-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.verify-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  padding: 7px 9px;
+  border-radius: 7px;
+  background: #e8efff;
+  color: #2857b5;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.verify-empty {
+  color: var(--muted);
+  font-size: 12px;
+  padding: 8px 0;
+}
+
+.verify-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.verify-actions .btn {
+  flex: 1;
+  min-width: 115px;
+}
+
+.accept-bingo {
+  background: var(--green);
+  color: white;
+}
+
+.accept-bingo:hover {
+  background: #178354;
+}
+
+.verify-result {
+  display: none;
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.5;
+}
+
+.verify-result.show {
+  display: block;
+}
+
+.verify-result.accepted {
+  background: #e5f8ed;
+  color: #16774c;
+}
+
+.verify-result.rejected {
+  background: #fff0f0;
+  color: #bd3434;
+}
+
 
 
 </style>
@@ -643,6 +747,40 @@ footer {
         <button class="btn secondary" id="speakBtn">🔊 Voice: Off</button>
         <button class="btn danger" id="resetBtn">Reset Game</button>
       </div>
+      
+<div class="verify-section">
+  <button class="btn primary" id="verifyBingoBtn" type="button">
+    Verify Bingo
+  </button>
+
+  <div class="verify-panel" id="verifyPanel" aria-live="polite">
+    <h3>Verify Bingo Claim</h3>
+    <div class="verify-description">
+      Check the called numbers against the player's bingo card.
+    </div>
+
+    <div class="verify-description" id="verifyCount">
+      0 numbers called
+    </div>
+
+    <div class="verify-numbers" id="verifyNumbers">
+      <div class="verify-empty">No numbers have been called yet.</div>
+    </div>
+
+    <div class="verify-actions">
+      <button class="btn danger" id="rejectBingoBtn" type="button">
+        Reject Bingo
+      </button>
+
+      <button class="btn accept-bingo" id="acceptBingoBtn" type="button">
+        Accept Bingo
+      </button>
+    </div>
+
+    <div class="verify-result" id="verifyResult" role="status"></div>
+  </div>
+</div>
+
     </section>
 
     <section class="panel">
@@ -921,6 +1059,94 @@ footer {
   });
 })();
 </script>
+  
+(() => {
+  const $ = id => document.getElementById(id);
+
+  const verifyButton = $('verifyBingoBtn');
+  const panel = $('verifyPanel');
+  const numbersList = $('verifyNumbers');
+  const countLabel = $('verifyCount');
+  const result = $('verifyResult');
+
+  if (!verifyButton || !panel) return;
+
+  function getLetter(n) {
+    if (n <= 15) return 'B';
+    if (n <= 30) return 'I';
+    if (n <= 45) return 'N';
+    if (n <= 60) return 'G';
+    return 'O';
+  }
+
+  function showResult(message, type) {
+    result.textContent = message;
+    result.className = `verify-result show ${type}`;
+  }
+
+  verifyButton.addEventListener('click', () => {
+    const isOpening = !panel.classList.contains('open');
+    panel.classList.toggle('open', isOpening);
+
+    if (!isOpening) return;
+
+    result.className = 'verify-result';
+    result.textContent = '';
+
+
+    const historyBalls = Array.from(
+      document.querySelectorAll('#history .history-ball')
+    );
+
+  
+    const calledNumbers = Array.from(
+      document.querySelectorAll('#board .number.called')
+    )
+      .map(button => Number(button.textContent))
+      .sort((a, b) => a - b);
+
+    countLabel.textContent =
+      `${calledNumbers.length} number${calledNumbers.length === 1 ? '' : 's'} called`;
+
+    numbersList.replaceChildren();
+
+    if (!calledNumbers.length) {
+      const empty = document.createElement('div');
+      empty.className = 'verify-empty';
+      empty.textContent = 'No numbers have been called yet.';
+      numbersList.appendChild(empty);
+      return;
+    }
+
+    calledNumbers.forEach(n => {
+      const ball = document.createElement('span');
+      ball.className = 'verify-number';
+      ball.textContent = `${getLetter(n)}-${n}`;
+      numbersList.appendChild(ball);
+    });
+  });
+
+  $('rejectBingoBtn').addEventListener('click', () => {
+    showResult(
+      'No Bingo 😔 - The game can continue.',
+      'rejected'
+    );
+  }); 
+
+  $('acceptBingoBtn').addEventListener('click', () => {
+    showResult(
+      '🎉 Bingo! You Win!',
+      'accepted'
+    );
+
+    // Trigger the existing confetti button and its effect.
+    $('confettiBtn')?.click();
+
+    // Update the game status.
+    $('status').textContent = 'BINGO VERIFIED';
+  });
+})();
+
 
 </body>
 </html>
