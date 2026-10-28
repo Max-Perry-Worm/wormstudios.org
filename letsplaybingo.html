@@ -326,6 +326,99 @@ footer {
     font-size: 8px;
   }
 }
+  
+/* Compact 75-number board */
+.layout {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.panel {
+  padding: 12px;
+  min-width: 0;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 3px;
+  width: 100%;
+}
+
+.col-letter {
+  padding: 4px 0;
+  margin: 0;
+  font-size: 13px;
+  border-radius: 4px;
+}
+
+.number {
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 1 / 0.72;
+  padding: 0;
+  border-radius: 3px;
+  font-size: clamp(9px, 1.1vw, 12px);
+  line-height: 1;
+}
+
+.panel-head {
+  margin-bottom: 9px;
+}
+
+.board-note {
+  margin-top: 7px;
+  padding: 6px 8px;
+  font-size: 10px;
+}
+
+.current-area {
+  padding: 9px;
+  margin-bottom: 8px;
+}
+
+.ball {
+  width: 76px;
+  height: 76px;
+  font-size: 25px;
+  margin: 6px auto;
+}
+
+.stats {
+  margin-top: 8px;
+  gap: 5px;
+}
+
+.stat {
+  padding: 7px 3px;
+}
+
+.history-ball {
+  width: 27px;
+  height: 27px;
+  font-size: 9px;
+}
+
+.section {
+  margin-top: 10px;
+}
+
+@media (max-width: 600px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #board {
+    gap: 4px;
+  }
+
+  .number {
+    aspect-ratio: 1 / 0.72;
+    font-size: 12px;
+  }
+}
+
 
 </style>
 </head>
