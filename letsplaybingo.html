@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Let's Play Bingo — Number Caller</title>
+<title>Let's Play Bingo — By Max Perry</title>
 <style>
 :root {
   --bg: #f3f5f9;
@@ -197,7 +197,7 @@ footer {
   .panel { box-shadow: none; }
 }
   
-/* Compact layout to fit the game on one screen */
+/* why no work */
 header {
   padding: 8px 16px;
 }
@@ -300,7 +300,7 @@ footer {
   font-size: 10px;
 }
 
-/* Extra compact on shorter screens */
+/* why no work x2 */
 @media (max-height: 800px) {
   main {
     margin-top: 6px;
@@ -327,7 +327,7 @@ footer {
   }
 }
   
-/* Compact 75-number board */
+/* why no work x3*/
 .layout {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
@@ -481,7 +481,7 @@ footer {
   }
 }
 
-/* Fit all 75 bingo numbers on a computer screen */
+/* it works now*/
 @media (min-width: 601px) {
   #board {
     display: grid;
@@ -527,7 +527,7 @@ footer {
   }
 }
 
-/* Smaller laptop screens */
+/* small screen integration cuz why not*/
 @media (min-width: 601px) and (max-height: 800px) {
   #board {
     height: calc(100vh - 210px);
@@ -535,7 +535,7 @@ footer {
   }
 }
 
-/* Mobile layout */
+/* and i know everybody is playing on mobile */
 @media (max-width: 600px) {
   #board {
     display: grid;
@@ -558,8 +558,8 @@ footer {
   <div class="brand">
     <div class="logo">B</div>
     <div>
-      <h1>Let's Play Bingo!</h1>
-      <div class="subtitle">Your game, your numbers, your fun.</div>
+      <h1>Let's Play Bingo! - Brought to you by Wormstudios</h1>
+      <div class="subtitle"> </div>
     </div>
   </div>
   <span class="live" id="status">READY TO PLAY</span>
@@ -580,21 +580,21 @@ footer {
   
 <section class="game-info">
   <div class="info-card">
-    <label for="playingFor">🎯 Playing for</label>
+    <label for="playingFor">Playing for</label>
     <input
       id="playingFor"
       type="text"
-      placeholder="Enter the prize or occasion..."
+      placeholder="Enter the prize..."
     >
   </div>
 
   <div class="info-card winner-card">
-    <label for="lastWinner">🏆 Last game's winner</label>
+    <label for="lastWinner">Last game's winner</label>
     <div class="winner-row">
       <input
         id="lastWinner"
         type="text"
-        placeholder="Enter winner's name..."
+        placeholder="Enter winner's name and give em some confetti!"
       >
       <button id="confettiBtn" type="button">🎉 Confetti!</button>
     </div>
@@ -607,7 +607,7 @@ footer {
     <section class="panel">
       <div class="panel-head">
         <h2>Current Call</h2>
-        <span class="eyebrow">75 BALL BINGO</span>
+        <span class="eyebrow">BINGO</span>
       </div>
 
       <div class="current-area">
@@ -659,7 +659,7 @@ footer {
 </main>
 
 <footer>
-  Let's Play Bingo · Independent, single-file bingo caller · No account required
+  Let's Play Bingo · Coded by Max Perry / Wormstudios (Love you mom) · Took too long to code
 </footer>
 
 <script>
@@ -797,7 +797,7 @@ footer {
     $('modeToggle').setAttribute('aria-checked', String(manual));
     $('modeLabel').textContent = manual ? 'Manual Mode' : 'Automatic Mode';
     $('modeHelp').textContent = manual
-      ? 'You control every number'
+      ? 'You click every number'
       : 'Call numbers randomly';
 
     renderBoard();
@@ -839,7 +839,7 @@ footer {
 
   $('shuffleBtn').addEventListener('click', () => {
     shuffledOrder = shuffledNumbers();
-    $('shuffleBtn').textContent = '✓ Shuffled!';
+    $('shuffleBtn').textContent = 'Shuffled!';
     setTimeout(() => $('shuffleBtn').textContent = '↻ Shuffle remaining', 900);
   });
 
