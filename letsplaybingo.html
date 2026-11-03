@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -196,7 +195,7 @@ footer {
   .layout { grid-template-columns: 1fr 1fr; }
   .panel { box-shadow: none; }
 }
-  
+
 /* why no work */
 header {
   padding: 8px 16px;
@@ -326,7 +325,7 @@ footer {
     font-size: 8px;
   }
 }
-  
+
 /* why no work x3*/
 .layout {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -549,7 +548,7 @@ footer {
     font-size: 11px;
   }
 }
-  
+
 /* Bingo! */
 .verify-section {
   margin-top: 12px;
@@ -652,9 +651,6 @@ footer {
   background: #fff0f0;
   color: #bd3434;
 }
-
-
-
 </style>
 </head>
 <body>
@@ -681,7 +677,7 @@ footer {
     </div>
     <button class="btn secondary" id="shuffleBtn">↻ Shuffle remaining</button>
   </div>
-  
+
 <section class="game-info">
   <div class="info-card">
     <label for="playingFor">Playing for</label>
@@ -705,7 +701,6 @@ footer {
     <div id="confettiArea" aria-live="polite"></div>
   </div>
 </section>
-
 
   <div class="layout">
     <section class="panel">
@@ -747,7 +742,7 @@ footer {
         <button class="btn secondary" id="speakBtn">🔊 Voice: Off</button>
         <button class="btn danger" id="resetBtn">Reset Game</button>
       </div>
-      
+
 <div class="verify-section">
   <button class="btn primary" id="verifyBingoBtn" type="button">
     Verify Bingo
@@ -869,15 +864,6 @@ footer {
     speechSynthesis.speak(utterance);
   }
 
-  function acceptreset() {
-     called = [];
-    latest = null;
-    started = false;
-    shuffledOrder = shuffledNumbers();
-    if ('speechSynthesis' in window) speechSynthesis.cancel();
-    update();
-  }
-
   function callNumber(n) {
     if (called.includes(n) || called.length >= 75) return;
     called.push(n);
@@ -990,21 +976,28 @@ footer {
     setTimeout(() => $('shuffleBtn').textContent = '↻ Shuffle remaining', 900);
   });
 
-  $('resetBtn').addEventListener('click', () => {
-    if (called.length && !confirm('Reset the game and clear all called numbers?')) return;
+  function resetBingoBoard() {
     called = [];
     latest = null;
     started = false;
     shuffledOrder = shuffledNumbers();
     if ('speechSynthesis' in window) speechSynthesis.cancel();
     update();
+  }
+
+  // Allow the Bingo verification controls to reset the board after a win.
+  window.resetBingoBoard = resetBingoBoard;
+
+  $('resetBtn').addEventListener('click', () => {
+    if (called.length && !confirm('Reset the game and clear all called numbers?')) return;
+    resetBingoBoard();
   });
 
   shuffledOrder = shuffledNumbers();
   update();
 })();
 </script>
-  
+
 <script>
 (() => {
   const button = document.getElementById('confettiBtn');
@@ -1068,8 +1061,8 @@ footer {
   });
 })();
 </script>
-  <script>
-  
+
+<script>
 (() => {
   const $ = id => document.getElementById(id);
 
@@ -1103,12 +1096,6 @@ footer {
     result.className = 'verify-result';
     result.textContent = '';
 
-
-    const historyBalls = Array.from(
-      document.querySelectorAll('#history .history-ball')
-    );
-
-  
     const calledNumbers = Array.from(
       document.querySelectorAll('#board .number.called')
     )
@@ -1141,26 +1128,25 @@ footer {
       'No Bingo 😔 - The game can continue.',
       'rejected'
     );
-    
-  }); 
+  });
 
   $('acceptBingoBtn').addEventListener('click', () => {
-    showResult(
-      '🎉 Bingo! You Win!',
-      'accepted'
-    );
-
-    // Trigger the existing confetti button and its effect.
+    // Celebrate the accepted claim, then start a fresh round.
     $('confettiBtn')?.click();
 
-    // Update the game status.
-    $('status').textContent = 'BINGO VERIFIED';
+    if (typeof window.resetBingoBoard === 'function') {
+      window.resetBingoBoard();
+    }
 
-    
+    // Keep the accepted result visible while the board starts fresh.
+    showResult(
+      '🎉 Bingo accepted! The board has been reset. Ready for the next game!',
+      'accepted'
+    );
+    $('status').textContent = 'BINGO VERIFIED';
   });
-  acceptreset();
 })();
-    </script>
+</script>
 
 </body>
 </html>
