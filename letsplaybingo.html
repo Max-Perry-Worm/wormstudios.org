@@ -869,6 +869,15 @@ footer {
     speechSynthesis.speak(utterance);
   }
 
+  function acceptreset() {
+     called = [];
+    latest = null;
+    started = false;
+    shuffledOrder = shuffledNumbers();
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    update();
+  }
+
   function callNumber(n) {
     if (called.includes(n) || called.length >= 75) return;
     called.push(n);
@@ -1132,6 +1141,7 @@ footer {
       'No Bingo 😔 - The game can continue.',
       'rejected'
     );
+    acceptreset();
   }); 
 
   $('acceptBingoBtn').addEventListener('click', () => {
