@@ -1,118 +1,150 @@
-```html
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Worm Extractor</title>
+<title>Worm Blaster</title>
 
 <style>
 * { box-sizing: border-box; }
 
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #171923;
+    background: #10111b;
     color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
 }
 
 header {
-    padding: 18px;
-    background: #222536;
+    height: 55px;
+    background: #202235;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
 }
 
-header h2 { margin: 0; color: #a78bfa; }
+header h2 {
+    color: #a78bfa;
+    margin: 0;
+}
+
+.stats {
+    display: flex;
+    gap: 20px;
+    font-weight: bold;
+}
+
+#score { color: #4ade80; }
 
 .toolbar {
     display: flex;
+    padding: 10px;
     gap: 8px;
-    padding: 12px;
-    background: #292d40;
+    background: #292c40;
 }
 
 input {
     flex: 1;
     min-width: 0;
-    padding: 12px;
-    border-radius: 8px;
-    border: none;
-    background: #171923;
+    background: #11121d;
+    border: 1px solid #555975;
     color: white;
+    border-radius: 6px;
+    padding: 10px;
 }
 
 button {
-    padding: 11px 15px;
-    border: none;
-    border-radius: 8px;
     background: #8b5cf6;
     color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 15px;
     cursor: pointer;
     font-weight: bold;
 }
 
 button:hover { background: #a78bfa; }
 
-.main {
+.game {
     display: flex;
-    height: calc(100vh - 120px);
+    height: calc(100dvh - 105px);
 }
 
-.browser {
+.arena {
+    position: relative;
     flex: 1;
-    padding: 12px;
     min-width: 0;
+    overflow: hidden;
+    background: #171923;
 }
 
 iframe {
     width: 100%;
     height: 100%;
-    border: 2px solid #393e54;
-    border-radius: 10px;
+    border: none;
     background: white;
 }
 
+#gameCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: auto;
+    cursor: crosshair;
+}
+
+.cannon {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 42px;
+    z-index: 2;
+    pointer-events: none;
+    filter: drop-shadow(0 0 12px #a855f7);
+}
+
 .sidebar {
-    width: 320px;
-    padding: 15px;
-    background: #222536;
+    width: 250px;
+    background: #202235;
+    padding: 12px;
     overflow-y: auto;
 }
 
 .sidebar h3 { color: #a78bfa; }
 
-.item {
+.extracted {
     background: #30354b;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    border-radius: 7px;
+    padding: 10px;
+    margin: 8px 0;
     overflow-wrap: anywhere;
+    font-size: 13px;
 }
 
-.item button {
+.extracted img {
+    max-width: 100%;
+}
+
+.extracted button {
     margin-top: 8px;
     background: #dc475f;
 }
 
-.item img {
-    max-width: 100%;
-    border-radius: 5px;
+.help {
+    font-size: 12px;
+    color: #a6abc0;
 }
 
-.empty {
-    color: #9298ad;
-    font-size: 13px;
-}
-
-@media(max-width: 700px) {
-    .main { flex-direction: column; }
-    .sidebar {
-        width: 100%;
-        height: 35%;
-    }
-    .browser { min-height: 50%; }
+@media(max-width: 650px) {
+    .sidebar { width: 125px; padding: 7px; }
+    .sidebar h3 { font-size: 14px; }
+    .stats { gap: 8px; font-size: 12px; }
+    header h2 { font-size: 16px; }
 }
 </style>
 </head>
@@ -120,50 +152,80 @@ iframe {
 <body>
 
 <header>
-    <h2>⚡ Worm Extractor</h2>
-    <span>CONTENT LAUNCHER</span>
+    <h2>WORM BLASTER</h2>
+    <div class="stats">
+        <span> SCORE: <span id="score">0</span></span>
+        <span> HITS: <span id="hits">0</span></span>
+    </div>
 </header>
 
 <div class="toolbar">
-    <input id="url" placeholder="Enter website URL..." value="https://example.com">
-    <button onclick="loadSite()">GO</button>
+    <input id="url" value="https://www.hilltopprep.org"
+        placeholder="Enter a website...">
+    <button onclick="loadSite()">LOAD</button>
+    <button onclick="resetGame()">RESET</button>
 </div>
 
-<div class="main">
+<div class="game">
 
-    <div class="browser">
-        <iframe id="browser"
-            src="https://example.com"
-            title="Website viewer">
-        </iframe>
+    <div class="arena" id="arena">
+
+        <iframe id="browser" src="https://www.hilltopprep.org"></iframe>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="cannon" id="cannon">pew</div>
+
     </div>
 
     <div class="sidebar">
-        <h3>🚀 Extracted Content</h3>
-
-        <p class="empty" id="empty">
-            Your launched content will appear here.
-        </p>
-
+        <h3>Loot</h3>
+        <p class="help">Shoot website elements to collect them!</p>
         <div id="collection"></div>
 
-        <button onclick="copyAll()">
-            Copy All
-        </button>
-
-        <button onclick="downloadAll()">
-            Download
-        </button>
-
-        <button onclick="clearAll()" style="background:#dc475f">
-            Clear Collection
+        <button onclick="downloadLoot()">DOWNLOAD LOOT</button>
+        <button onclick="clearLoot()" style="background:#dc475f">
+            CLEAR LOOT
         </button>
     </div>
 
 </div>
 
 <script>
-const collection = [];
+const iframe = document.getElementById("browser");
+const arena = document.getElementById("arena");
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const cannon = document.getElementById("cannon");
+
+let score = 0;
+let hits = 0;
+let loot = [];
+
+let mouse = {
+    x: 0,
+    y: 0
+};
+
+let projectiles = [];
+let effects = [];
+
+let frame = 0;
+
+function resize() {
+    const rect = arena.getBoundingClientRect();
+
+    canvas.width = rect.width * devicePixelRatio;
+    canvas.height = rect.height * devicePixelRatio;
+
+    ctx.setTransform(
+        devicePixelRatio, 0, 0,
+        devicePixelRatio, 0, 0
+    );
+}
+
+window.addEventListener("resize", resize);
+resize();
 
 function loadSite() {
     let url = document.getElementById("url").value.trim();
@@ -177,88 +239,291 @@ function loadSite() {
     try {
         const parsed = new URL(url);
 
-        if (!["http:", "https:"].includes(parsed.protocol)) {
-            throw new Error("Invalid protocol");
+        if (!["https:", "http:"].includes(parsed.protocol)) {
+            throw new Error("Invalid URL");
         }
 
-        document.getElementById("browser").src = parsed.href;
+        iframe.src = parsed.href;
 
     } catch {
-        alert("Please enter a valid website URL.");
+        alert("Invalid website URL!");
     }
 }
 
-function addContent(content, type) {
-    collection.push({content, type});
-    render();
+arena.addEventListener("mousemove", e => {
+    const rect = arena.getBoundingClientRect();
+
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+
+    cannon.style.left = mouse.x + "px";
+});
+
+arena.addEventListener("click", e => {
+    if (e.target.tagName === "BUTTON" ||
+        e.target.tagName === "INPUT") return;
+
+    shoot(mouse.x, mouse.y);
+});
+
+function shoot(x, y) {
+    const rect = arena.getBoundingClientRect();
+
+    const startX = mouse.x;
+    const startY = rect.height - 35;
+
+    projectiles.push({
+        x: startX,
+        y: startY,
+        targetX: x,
+        targetY: y,
+        progress: 0,
+        speed: 0.09
+    });
 }
 
-function render() {
-    const container = document.getElementById("collection");
+function getTarget(x, y) {
+    try {
+        const doc = iframe.contentDocument;
 
-    document.getElementById("empty").style.display =
-        collection.length ? "none" : "block";
+        if (!doc) throw new Error("Unavailable");
 
-    container.innerHTML = "";
+        const rect = iframe.getBoundingClientRect();
 
-    collection.forEach((item, index) => {
-        const div = document.createElement("div");
-        div.className = "item";
+        const element = doc.elementFromPoint(
+            x - rect.left,
+            y - rect.top
+        );
 
-        if (item.type === "image") {
-            const img = document.createElement("img");
-            img.src = item.content;
-            img.alt = "Extracted image";
-            div.appendChild(img);
-        } else {
-            const p = document.createElement("p");
-            p.textContent = item.content;
-            div.appendChild(p);
+        if (!element ||
+            element === doc.body ||
+            element === doc.documentElement) {
+            return null;
         }
 
+        return element;
+
+    } catch {
+        showMessage(
+            "This website blocks access to its contents. Try another website."
+        );
+        return null;
+    }
+}
+
+function extract(element, x, y) {
+    if (!element || !element.isConnected) return;
+
+    const tag = element.tagName.toLowerCase();
+
+    let content = "";
+
+    if (tag === "img") {
+        content = element.src;
+    } else {
+        content = (
+            element.innerText ||
+            element.textContent ||
+            element.alt ||
+            element.getAttribute("aria-label") ||
+            ""
+        ).trim();
+
+        if (!content) {
+            content = element.outerHTML.slice(0, 500);
+        }
+    }
+
+    const item = {
+        type: tag,
+        content: content.slice(0, 1000)
+    };
+
+    loot.push(item);
+
+    // Hide the hit element!
+    element.style.visibility = "hidden";
+
+    score += 100;
+    hits++;
+
+    document.getElementById("score").textContent = score;
+    document.getElementById("hits").textContent = hits;
+
+    renderLoot();
+
+    effects.push({
+        x: x,
+        y: y,
+        life: 1,
+        color: "#a855f7"
+    });
+}
+
+function showMessage(message) {
+    // Keep the latest error visible without interrupting the game.
+    let box = document.getElementById("message");
+
+    if (!box) {
+        box = document.createElement("div");
+        box.id = "message";
+
+        box.style.cssText = `
+            position:absolute;
+            top:10px;
+            left:50%;
+            transform:translateX(-50%);
+            background:#dc475f;
+            padding:10px;
+            border-radius:8px;
+            z-index:5;
+            font-size:12px;
+        `;
+
+        arena.appendChild(box);
+    }
+
+    box.textContent = message;
+
+    setTimeout(() => box.remove(), 3500);
+}
+
+function renderLoot() {
+    const container = document.getElementById("collection");
+    container.innerHTML = "";
+
+    loot.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.className = "extracted";
+
+        const title = document.createElement("b");
+        title.textContent = "💎 " + item.type.toUpperCase();
+
+        const text = document.createElement("p");
+        text.textContent = item.content;
+
         const remove = document.createElement("button");
-        remove.textContent = "Remove";
+        remove.textContent = "DELETE";
+
         remove.onclick = () => {
-            collection.splice(index, 1);
-            render();
+            loot.splice(index, 1);
+            renderLoot();
         };
 
-        div.appendChild(remove);
+        div.append(title, text, remove);
         container.appendChild(div);
     });
 }
 
-function copyAll() {
-    const text = collection.map(item =>
-        item.type === "image"
-            ? item.content
-            : item.content
-    ).join("\n\n");
-
-    navigator.clipboard.writeText(text);
+function clearLoot() {
+    loot = [];
+    renderLoot();
 }
 
-function downloadAll() {
-    const text = collection.map(item =>
-        item.type.toUpperCase() + ":\n" + item.content
-    ).join("\n\n");
+function downloadLoot() {
+    const text = loot.map(item =>
+        item.type + "\n" + item.content
+    ).join("\n\n----------------\n\n");
 
-    const blob = new Blob([text], {type: "text/plain"});
+    const blob = new Blob([text], {
+        type: "text/plain"
+    });
+
     const link = document.createElement("a");
-
     link.href = URL.createObjectURL(blob);
-    link.download = "extracted-content.txt";
+    link.download = "worm-blaster-loot.txt";
     link.click();
 
     URL.revokeObjectURL(link.href);
 }
 
-function clearAll() {
-    collection.length = 0;
-    render();
+function resetGame() {
+    score = 0;
+    hits = 0;
+    projectiles = [];
+    effects = [];
+    loot = [];
+
+    document.getElementById("score").textContent = 0;
+    document.getElementById("hits").textContent = 0;
+
+    renderLoot();
+
+    // Reload the page to restore hidden elements.
+    iframe.src = iframe.src;
 }
+
+function animate() {
+    const rect = arena.getBoundingClientRect();
+
+    ctx.clearRect(0, 0, rect.width, rect.height);
+
+    // Draw laser projectiles
+    projectiles.forEach((p, index) => {
+        p.progress += p.speed;
+
+        const t = Math.min(p.progress, 1);
+
+        const x = p.x + (p.targetX - p.x) * t;
+        const y = p.y + (p.targetY - p.y) * t;
+
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(x, y);
+
+        ctx.strokeStyle = "#c084fc";
+        ctx.lineWidth = 5;
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = "#a855f7";
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+
+        if (p.progress >= 1) {
+            const element = getTarget(p.targetX, p.targetY);
+
+            if (element) {
+                extract(element, p.targetX, p.targetY);
+            }
+
+            projectiles.splice(index, 1);
+        }
+    });
+
+    // Explosion particles
+    effects.forEach((effect, index) => {
+        effect.life -= 0.035;
+
+        ctx.beginPath();
+        ctx.arc(
+            effect.x,
+            effect.y,
+            (1 - effect.life) * 45,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.strokeStyle = effect.color;
+        ctx.lineWidth = 3;
+        ctx.globalAlpha = Math.max(0, effect.life);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        if (effect.life <= 0) {
+            effects.splice(index, 1);
+        }
+    });
+
+    frame++;
+    requestAnimationFrame(animate);
+}
+
+animate();
 </script>
 
 </body>
 </html>
-```
