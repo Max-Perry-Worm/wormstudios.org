@@ -93,8 +93,8 @@ iframe {
     inset: 0;
     width: 100%;
     height: 100%;
-    pointer-events: auto;
-    cursor: crosshair;
+    pointer-events: none;
+    z-index: 2;
 }
 
 .cannon {
@@ -103,7 +103,7 @@ iframe {
     left: 50%;
     transform: translateX(-50%);
     font-size: 42px;
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
     filter: drop-shadow(0 0 12px #a855f7);
 }
@@ -126,9 +126,7 @@ iframe {
     font-size: 13px;
 }
 
-.extracted img {
-    max-width: 100%;
-}
+.extracted img { max-width: 100%; }
 
 .extracted button {
     margin-top: 8px;
@@ -154,13 +152,13 @@ iframe {
 <header>
     <h2>WORM BLASTER</h2>
     <div class="stats">
-        <span> SCORE: <span id="score">0</span></span>
-        <span> HITS: <span id="hits">0</span></span>
+        <span>SCORE: <span id="score">0</span></span>
+        <span>HITS: <span id="hits">0</span></span>
     </div>
 </header>
 
 <div class="toolbar">
-    <input id="url" value="https://www.hilltopprep.org"
+    <input id="url" value="https://example.com"
         placeholder="Enter a website...">
     <button onclick="loadSite()">LOAD</button>
     <button onclick="resetGame()">RESET</button>
@@ -170,7 +168,8 @@ iframe {
 
     <div class="arena" id="arena">
 
-        <iframe id="browser" src="https://www.hilltopprep.org"></iframe>
+        <iframe id="browser" src="https://example.com"
+            title="Website arena"></iframe>
 
         <canvas id="gameCanvas"></canvas>
 
@@ -179,8 +178,9 @@ iframe {
     </div>
 
     <div class="sidebar">
-        <h3>Loot</h3>
+        <h3>LOOT</h3>
         <p class="help">Shoot website elements to collect them!</p>
+
         <div id="collection"></div>
 
         <button onclick="downloadLoot()">DOWNLOAD LOOT</button>
@@ -202,15 +202,10 @@ let score = 0;
 let hits = 0;
 let loot = [];
 
-let mouse = {
-    x: 0,
-    y: 0
-};
+let mouse = { x: 0, y: 0 };
 
 let projectiles = [];
 let effects = [];
-
-let frame = 0;
 
 function resize() {
     const rect = arena.getBoundingClientRect();
@@ -250,7 +245,9 @@ function loadSite() {
     }
 }
 
-arena.addEventListener("mousemove", e => {
+// AIMING
+
+arena.addEventListener("pointermove", e => {
     const rect = arena.getBoundingClientRect();
 
     mouse.x = e.clientX - rect.left;
@@ -259,18 +256,22 @@ arena.addEventListener("mousemove", e => {
     cannon.style.left = mouse.x + "px";
 });
 
-arena.addEventListener("click", e => {
-    if (e.target.tagName === "BUTTON" ||
-        e.target.tagName === "INPUT") return;
+// SHOOTING
+
+arena.addEventListener("pointerdown", e => {
+    if (e.target.closest("button, input")) return;
+
+    const rect = arena.getBoundingClientRect();
+
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
 
     shoot(mouse.x, mouse.y);
 });
 
 function shoot(x, y) {
-    const rect = arena.getBoundingClientRect();
-
     const startX = mouse.x;
-    const startY = rect.height - 35;
+    const startY = arena.clientHeight - 35;
 
     projectiles.push({
         x: startX,
@@ -282,34 +283,35 @@ function shoot(x, y) {
     });
 }
 
+// FIND TARGET
+
 function getTarget(x, y) {
     try {
         const doc = iframe.contentDocument;
 
-        if (!doc) throw new Error("Unavailable");
+        if (!doc) return null;
 
-        const rect = iframe.getBoundingClientRect();
+        const arenaRect = arena.getBoundingClientRect();
+        const iframeRect = iframe.getBoundingClientRect();
 
-        const element = doc.elementFromPoint(
-            x - rect.left,
-            y - rect.top
-        );
+        const frameX =
+            x + arenaRect.left - iframeRect.left;
 
-        if (!element ||
-            element === doc.body ||
-            element === doc.documentElement) {
-            return null;
-        }
+        const frameY =
+            y + arenaRect.top - iframeRect.top;
 
-        return element;
+        return doc.elementFromPoint(frameX, frameY);
 
     } catch {
         showMessage(
-            "This website blocks access to its contents. Try another website."
+            "This website blocks access. Try a compatible website."
         );
+
         return null;
     }
 }
+
+// EXTRACT ELEMENT
 
 function extract(element, x, y) {
     if (!element || !element.isConnected) return;
@@ -334,14 +336,11 @@ function extract(element, x, y) {
         }
     }
 
-    const item = {
+    loot.push({
         type: tag,
         content: content.slice(0, 1000)
-    };
+    });
 
-    loot.push(item);
-
-    // Hide the hit element!
     element.style.visibility = "hidden";
 
     score += 100;
@@ -355,13 +354,13 @@ function extract(element, x, y) {
     effects.push({
         x: x,
         y: y,
-        life: 1,
-        color: "#a855f7"
+        life: 1
     });
 }
 
+// MESSAGE
+
 function showMessage(message) {
-    // Keep the latest error visible without interrupting the game.
     let box = document.getElementById("message");
 
     if (!box) {
@@ -385,11 +384,16 @@ function showMessage(message) {
 
     box.textContent = message;
 
-    setTimeout(() => box.remove(), 3500);
+    setTimeout(() => {
+        if (box.isConnected) box.remove();
+    }, 3500);
 }
+
+// LOOT PANEL
 
 function renderLoot() {
     const container = document.getElementById("collection");
+
     container.innerHTML = "";
 
     loot.forEach((item, index) => {
@@ -411,14 +415,12 @@ function renderLoot() {
         };
 
         div.append(title, text, remove);
+
         container.appendChild(div);
     });
 }
 
-function clearLoot() {
-    loot = [];
-    renderLoot();
-}
+// DOWNLOAD
 
 function downloadLoot() {
     const text = loot.map(item =>
@@ -430,16 +432,26 @@ function downloadLoot() {
     });
 
     const link = document.createElement("a");
+
     link.href = URL.createObjectURL(blob);
     link.download = "worm-blaster-loot.txt";
+
     link.click();
 
     URL.revokeObjectURL(link.href);
 }
 
+function clearLoot() {
+    loot = [];
+    renderLoot();
+}
+
+// RESET
+
 function resetGame() {
     score = 0;
     hits = 0;
+
     projectiles = [];
     effects = [];
     loot = [];
@@ -449,16 +461,18 @@ function resetGame() {
 
     renderLoot();
 
-    // Reload the page to restore hidden elements.
     iframe.src = iframe.src;
 }
+
+// GAME LOOP
 
 function animate() {
     const rect = arena.getBoundingClientRect();
 
     ctx.clearRect(0, 0, rect.width, rect.height);
 
-    // Draw laser projectiles
+    // LASERS
+
     projectiles.forEach((p, index) => {
         p.progress += p.speed;
 
@@ -475,12 +489,15 @@ function animate() {
         ctx.lineWidth = 5;
         ctx.shadowBlur = 18;
         ctx.shadowColor = "#a855f7";
+
         ctx.stroke();
+
         ctx.shadowBlur = 0;
 
         ctx.beginPath();
         ctx.arc(x, y, 6, 0, Math.PI * 2);
-        ctx.fillStyle = "#ffffff";
+
+        ctx.fillStyle = "white";
         ctx.fill();
 
         if (p.progress >= 1) {
@@ -494,11 +511,13 @@ function animate() {
         }
     });
 
-    // Explosion particles
+    // EXPLOSIONS
+
     effects.forEach((effect, index) => {
         effect.life -= 0.035;
 
         ctx.beginPath();
+
         ctx.arc(
             effect.x,
             effect.y,
@@ -507,10 +526,13 @@ function animate() {
             Math.PI * 2
         );
 
-        ctx.strokeStyle = effect.color;
+        ctx.strokeStyle = "#a855f7";
         ctx.lineWidth = 3;
+
         ctx.globalAlpha = Math.max(0, effect.life);
+
         ctx.stroke();
+
         ctx.globalAlpha = 1;
 
         if (effect.life <= 0) {
@@ -518,12 +540,11 @@ function animate() {
         }
     });
 
-    frame++;
     requestAnimationFrame(animate);
 }
 
 animate();
-</script>
 
+</script>
 </body>
 </html>
