@@ -1,0 +1,380 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PubMess</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #151827;
+    color: white;
+}
+
+header {
+    background: #222840;
+    padding: 25px;
+    text-align: center;
+    border-bottom: 1px solid #353d59;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 30px;
+}
+
+header p {
+    color: #aeb8d4;
+}
+
+.container {
+    max-width: 750px;
+    margin: 30px auto;
+    padding: 15px;
+}
+
+.panel {
+    background: #222840;
+    padding: 22px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+h2 {
+    margin-top: 0;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 13px;
+    margin: 8px 0;
+    border: 1px solid #414b6b;
+    border-radius: 7px;
+    background: #151827;
+    color: white;
+    font-size: 15px;
+    font-family: Arial;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+button {
+    background: #687cf7;
+    color: white;
+    border: none;
+    padding: 13px 22px;
+    border-radius: 7px;
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #5065e8;
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+#status {
+    color: #aeb8d4;
+    margin-top: 10px;
+}
+
+.post {
+    background: #222840;
+    border: 1px solid #353d59;
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 15px;
+    overflow-wrap: anywhere;
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.post-name {
+    font-weight: bold;
+    color: #91a2ff;
+}
+
+.post-date {
+    color: #929bb5;
+    font-size: 12px;
+}
+
+.post-message {
+    white-space: pre-wrap;
+    line-height: 1.5;
+}
+
+.empty {
+    text-align: center;
+    color: #929bb5;
+    padding: 30px;
+}
+
+#posts {
+    min-height: 100px;
+}
+
+footer {
+    text-align: center;
+    color: #77819d;
+    padding: 30px;
+    font-size: 13px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>💬 PubMess</h1>
+    <p>A public chat. No rules, no restrictions.</p>
+</header>
+
+<div class="container">
+
+    <div class="panel">
+        <h2>✏️ Write a message</h2>
+
+        <form id="postForm">
+
+            <input
+                type="text"
+                id="username"
+                placeholder="Your display name"
+                maxlength="30"
+                required
+            >
+
+            <textarea
+                id="message"
+                placeholder="What would you like to say?"
+                maxlength="2000"
+                required
+            ></textarea>
+
+            <button type="submit" id="postButton">
+                Publish Message
+            </button>
+
+            <p id="status"></p>
+
+        </form>
+    </div>
+
+    <h2>🌎 Community Messages</h2>
+
+    <div id="posts">
+        <div class="empty">Loading messages...</div>
+    </div>
+
+</div>
+
+<footer>
+    PubMess * Wormstudios
+</footer>
+
+<script type="module">
+
+// ==========================================
+// FIREBASE IMPORTS
+// ==========================================
+
+import { initializeApp } from
+"https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    query,
+    orderBy,
+    onSnapshot,
+    serverTimestamp
+} from
+"https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+
+// ==========================================
+// YOUR FIREBASE CONFIGURATION
+// ==========================================
+
+const firebaseConfig = {
+
+  apiKey: "AIzaSyCz0VxmjokomRmIr4POfqA_Jdm_PJtU9Yo",
+
+  authDomain: "message-board-28a28.firebaseapp.com",
+
+  projectId: "message-board-28a28",
+
+  storageBucket: "message-board-28a28.firebasestorage.app",
+
+  messagingSenderId: "617061624126",
+
+  appId: "1:617061624126:web:2d1c5af4bd07c7e246246f",
+
+  measurementId: "G-PVDQ343WS5"
+
+};
+
+
+
+// ==========================================
+// CONNECT TO FIREBASE
+// ==========================================
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const postsRef = collection(db, "messages");
+
+
+// ==========================================
+// PUBLISH A MESSAGE
+// ==========================================
+
+const form = document.getElementById("postForm");
+const status = document.getElementById("status");
+const button = document.getElementById("postButton");
+
+form.addEventListener("submit", async (event) => {
+
+    event.preventDefault();
+
+    const username = document
+        .getElementById("username")
+        .value.trim();
+
+    const message = document
+        .getElementById("message")
+        .value.trim();
+
+    if (!username || !message) {
+        status.textContent = "Please fill in both fields.";
+        return;
+    }
+
+    if (username.length > 30 || message.length > 2000) {
+        status.textContent = "Your message is too long.";
+        return;
+    }
+
+    button.disabled = true;
+    status.textContent = "Publishing...";
+
+    try {
+
+        await addDoc(postsRef, {
+            username: username,
+            message: message,
+            createdAt: serverTimestamp()
+        });
+
+        document.getElementById("message").value = "";
+
+        status.textContent = "Message published successfully!";
+
+    } catch (error) {
+
+        console.error(error);
+        status.textContent = "Error publishing message. Try again.";
+
+    }
+
+    button.disabled = false;
+
+});
+
+
+// ==========================================
+// LOAD MESSAGES IN REAL TIME
+// ==========================================
+
+const postsQuery = query(
+    postsRef,
+    orderBy("createdAt", "desc")
+);
+
+onSnapshot(postsQuery, (snapshot) => {
+
+    const postsContainer = document.getElementById("posts");
+
+    postsContainer.replaceChildren();
+
+    if (snapshot.empty) {
+
+        postsContainer.innerHTML =
+            '<div class="empty">No messages yet. Be the first!</div>';
+
+        return;
+    }
+
+    snapshot.forEach((documentSnapshot) => {
+
+        const data = documentSnapshot.data();
+
+        const post = document.createElement("div");
+        post.className = "post";
+
+        const header = document.createElement("div");
+        header.className = "post-header";
+
+        const name = document.createElement("span");
+        name.className = "post-name";
+        name.textContent = data.username || "Anonymous";
+
+        const date = document.createElement("span");
+        date.className = "post-date";
+
+        if (data.createdAt) {
+            date.textContent =
+                data.createdAt.toDate().toLocaleString();
+        } else {
+            date.textContent = "Just now";
+        }
+
+        const message = document.createElement("div");
+        message.className = "post-message";
+        message.textContent = data.message || "";
+
+        header.append(name, date);
+        post.append(header, message);
+
+        postsContainer.appendChild(post);
+
+    });
+
+}, (error) => {
+
+    console.error(error);
+
+    document.getElementById("posts").textContent =
+        "Unable to load messages. Check your Firebase settings.";
+
+});
+
+</script>
+
+</body>
+</html>
