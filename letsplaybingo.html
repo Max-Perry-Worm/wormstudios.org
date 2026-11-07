@@ -989,7 +989,7 @@ footer {
   window.resetBingoBoard = resetBingoBoard;
 
   $('resetBtn').addEventListener('click', () => {
-    if (called.length && !confirm('Reset the game and clear all called numbers?')) return;
+    if (!confirm('Reset the game and clear all called numbers?')) return;
     resetBingoBoard();
   });
 
