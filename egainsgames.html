@@ -16,8 +16,6 @@
             display: flex;
         }
 
-        /* AUTHENTICATION SCREEN */
-
         #authScreen {
             position: fixed;
             inset: 0;
@@ -52,7 +50,7 @@
         }
 
         .auth-box button {
-            background: rgb(89, 134, 218);
+            background: rgb(89,134,218);
             color: white;
             border: none;
             padding: 13px 20px;
@@ -67,7 +65,7 @@
         }
 
         .auth-box button:disabled {
-            opacity: 0.6;
+            opacity: .6;
             cursor: wait;
         }
 
@@ -84,7 +82,7 @@
 
         #generatedPin {
             display: none;
-            background: rgba(89,134,218,0.2);
+            background: rgba(89,134,218,.2);
             padding: 15px;
             border-radius: 10px;
             margin-top: 15px;
@@ -97,8 +95,6 @@
             color: #79aadb;
         }
 
-        /* WEBSITE */
-
         #websiteContent {
             display: none;
             width: 100%;
@@ -110,19 +106,19 @@
             top: 0;
             width: 80px;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0,0,0,.3);
             backdrop-filter: blur(10px);
             padding: 20px 10px;
             display: flex;
             flex-direction: column;
             gap: 8px;
             overflow-y: auto;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+            box-shadow: 2px 0 10px rgba(0,0,0,.3);
             z-index: 1000;
         }
 
         .sidebar-btn {
-            background: rgb(89, 134, 218);
+            background: rgb(89,134,218);
             border: none;
             padding: 12px;
             font-size: 18px;
@@ -161,7 +157,7 @@
             font-weight: bold;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 3px solid rgba(255,255,255,0.3);
+            border-bottom: 3px solid rgba(255,255,255,.3);
         }
 
         .buttons-container {
@@ -172,7 +168,7 @@
         }
 
         input[type="button"] {
-            background: rgb(89, 134, 218);
+            background: rgb(89,134,218);
             border: none;
             padding: 15px 30px;
             font-size: 16px;
@@ -203,7 +199,7 @@
 
 <body>
 
-<!-- REGISTRATION AND LOGIN -->
+<!-- LOGIN AND REGISTRATION -->
 
 <div id="authScreen">
 
@@ -216,7 +212,6 @@
         <div id="loginPanel">
 
             <h3>Welcome Back!</h3>
-
             <p>Enter your personal PIN to continue.</p>
 
             <input
@@ -242,13 +237,14 @@
 
         </div>
 
-        <!-- REGISTER -->
+
+        <!-- REGISTRATION -->
 
         <div id="registerPanel" style="display:none;">
 
             <h3>Create Your Account</h3>
 
-            <p>Enter your name to receive your personal PIN.</p>
+            <p>Enter your real first and last name.</p>
 
             <input
                 type="text"
@@ -279,6 +275,7 @@
             </p>
 
         </div>
+
 
         <!-- GENERATED PIN -->
 
@@ -314,7 +311,7 @@
 </div>
 
 
-<!-- WEBSITE CONTENT -->
+<!-- WEBSITE -->
 
 <div id="websiteContent">
 
@@ -325,31 +322,21 @@
         <h1>E-Gains Games</h1>
 
         <h2 style="color:white;text-align:center;font-weight:normal;font-size:18px;">
-
             Files from
-
             <a href="tptowrm.html"
                target="_blank"
                style="color:#79aadb;text-decoration:none;">
-
                 Wormstudios
-
             </a>
-
         </h2>
 
         <h2 style="color:white;text-align:center;font-weight:normal;font-size:18px;">
-
             Click Me!
-
             <a href="https://www.tiktok.com/@sloptokk/video/7614176237568838925"
                target="_blank"
                style="color:#79aadb;text-decoration:none;">
-
                 Important link!
-
             </a>
-
         </h2>
 
         <h2 style="color:white;text-align:center;font-weight:normal;font-size:18px;">
@@ -361,17 +348,13 @@
                 style="padding:13px;width:100%;max-width:420px;border-radius:8px;border:none;"
             >
 
-            <button
-                id="lolbutton"
+            <button id="lolbutton"
                 onclick="
                     const script=document.createElement('script');
                     script.src='https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@latest/games.js';
                     document.body.appendChild(script);
-                "
-            >
-
+                ">
                 Click to load if it isnt loading
-
             </button>
 
         </h2>
@@ -383,7 +366,7 @@
 </div>
 
 
-<!-- FIREBASE AUTHENTICATION SYSTEM -->
+<!-- FIREBASE -->
 
 <script type="module">
 
@@ -395,7 +378,9 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     onAuthStateChanged,
-    deleteUser
+    deleteUser,
+    setPersistence,
+    browserSessionPersistence
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
 import {
@@ -409,85 +394,102 @@ import {
 // FIREBASE CONFIGURATION
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBRVctTiTzVYhF-fWLadCSxgF0lAJj53cs",
-    authDomain: "games-4f980.firebaseapp.com",
-    projectId: "games-4f980",
-    storageBucket: "games-4f980.firebasestorage.app",
-    messagingSenderId: "204900296991",
-    appId: "1:204900296991:web:a80496935562cdf99ba82a",
-    measurementId: "G-Y3X0NW3PWN"
-  };
+    apiKey: "AIzaSyBRVctTiTzVYhF-fWLadCSxgF0lAJj53cs",
+    authDomain: "games-4f980.firebaseapp.com",
+    projectId: "games-4f980",
+    storageBucket: "games-4f980.firebasestorage.app",
+    messagingSenderId: "204900296991",
+    appId: "1:204900296991:web:a80496935562cdf99ba82a",
+    measurementId: "G-Y3X0NW3PWN"
+  };
 
 
-// INITIALIZE FIREBASE
+
+// INITIALIZE
 
 const app = initializeApp(firebaseConfig);
-
 const auth = getAuth(app);
-
 const db = getFirestore(app);
+
+
+// IMPORTANT: SESSION-ONLY LOGIN
+
+// This prevents Firebase from remembering users
+// after the browser tab session ends.
+
+await setPersistence(auth, browserSessionPersistence);
 
 
 // VARIABLES
 
 let newPin = null;
-
 let showingNewPin = false;
 
 
-// CREATE PRIVATE LOGIN ADDRESS
+// PRIVATE LOGIN ADDRESS
 
 function pinEmail(pin) {
-
     return `pin-${pin}@${firebaseConfig.projectId}.firebaseapp.com`;
-
 }
 
 
-// SWITCH TO REGISTER
+// NAME VALIDATION
+
+function validateName(name) {
+
+    const cleaned = name.trim().replace(/\s+/g, " ");
+
+    // Allows letters, accents, spaces, apostrophes,
+    // hyphens and periods in names.
+
+    const validName =
+        /^[\p{L}\p{M}]+(?:[ '\u2019.-][\p{L}\p{M}]+)*$/u;
+
+    if (cleaned.length < 2 || cleaned.length > 50) {
+        return false;
+    }
+
+    if (!validName.test(cleaned)) {
+        return false;
+    }
+
+    return true;
+}
+
+
+// SWITCH SCREENS
 
 window.showRegister = function() {
 
     hideError();
 
     document.getElementById("loginPanel").style.display = "none";
-
     document.getElementById("registerPanel").style.display = "block";
-
     document.getElementById("generatedPin").style.display = "none";
 
 };
-
-
-// SWITCH TO LOGIN
 
 window.showLogin = function() {
 
     hideError();
 
     document.getElementById("registerPanel").style.display = "none";
-
     document.getElementById("loginPanel").style.display = "block";
-
     document.getElementById("generatedPin").style.display = "none";
 
 };
 
 
-// SHOW ERROR
+// ERROR HANDLING
 
 function showError(message) {
 
     const error = document.getElementById("authError");
 
     error.textContent = message;
-
     error.style.display = "block";
 
 }
-
-
-// HIDE ERROR
 
 function hideError() {
 
@@ -496,7 +498,7 @@ function hideError() {
 }
 
 
-// GENERATE RANDOM SIX-DIGIT PIN
+// GENERATE PIN
 
 function generatePin() {
 
@@ -509,38 +511,36 @@ function generatePin() {
 }
 
 
-// REGISTER NEW USER
+// REGISTER
 
 window.register = async function() {
 
     hideError();
 
     const firstName =
-        document.getElementById("firstName").value.trim();
+        document.getElementById("firstName").value.trim().replace(/\s+/g, " ");
 
     const lastName =
-        document.getElementById("lastName").value.trim();
+        document.getElementById("lastName").value.trim().replace(/\s+/g, " ");
 
     if (!firstName || !lastName) {
-
         showError("Enter your first and last name.");
-
         return;
-
     }
 
-    if (firstName.length > 50 || lastName.length > 50) {
-
-        showError("Names must be 50 characters or fewer.");
-
+    if (!validateName(firstName)) {
+        showError("Please enter a valid first name.");
         return;
+    }
 
+    if (!validateName(lastName)) {
+        showError("Please enter a valid last name.");
+        return;
     }
 
     const button = document.getElementById("registerButton");
 
     button.disabled = true;
-
     button.textContent = "Creating Account...";
 
     showingNewPin = true;
@@ -569,30 +569,23 @@ window.register = async function() {
                 await setDoc(
                     doc(db, "users", credential.user.uid),
                     {
-                        firstName: firstName,
-                        lastName: lastName,
+                        firstName,
+                        lastName,
                         createdAt: serverTimestamp()
                     }
                 );
 
                 created = true;
-
                 break;
 
             } catch (error) {
 
                 if (error.code === "auth/email-already-in-use") {
-
                     continue;
-
                 }
 
-                // DELETE INCOMPLETE ACCOUNT
-
                 if (auth.currentUser) {
-
                     await deleteUser(auth.currentUser).catch(() => {});
-
                 }
 
                 throw error;
@@ -602,14 +595,8 @@ window.register = async function() {
         }
 
         if (!created) {
-
-            throw new Error(
-                "Could not generate a unique PIN. Please try again."
-            );
-
+            throw new Error("Could not generate a unique PIN. Try again.");
         }
-
-        // SHOW GENERATED PIN
 
         document.getElementById("registerPanel").style.display = "none";
 
@@ -621,14 +608,11 @@ window.register = async function() {
 
         showingNewPin = false;
 
-        showError(
-            error.message || "Registration failed."
-        );
+        showError(error.message || "Registration failed.");
 
     } finally {
 
         button.disabled = false;
-
         button.textContent = "Register";
 
     }
@@ -646,9 +630,9 @@ window.copyPin = async function() {
 
         await navigator.clipboard.writeText(newPin);
 
-        const button = document.querySelector("#generatedPin button");
+        showError("PIN copied successfully!");
 
-        button.textContent = "Copied!";
+        document.getElementById("authError").style.color = "#79aadb";
 
     } catch {
 
@@ -659,7 +643,7 @@ window.copyPin = async function() {
 };
 
 
-// LOGIN WITH PIN
+// LOGIN
 
 window.login = async function() {
 
@@ -669,17 +653,13 @@ window.login = async function() {
         document.getElementById("loginPin").value.trim();
 
     if (!/^\d{6}$/.test(pin)) {
-
         showError("Enter your six-digit PIN.");
-
         return;
-
     }
 
     const button = document.getElementById("loginButton");
 
     button.disabled = true;
-
     button.textContent = "Logging In...";
 
     try {
@@ -697,23 +677,16 @@ window.login = async function() {
             error.code === "auth/user-not-found" ||
             error.code === "auth/wrong-password"
         ) {
-
             showError("Incorrect PIN. Please try again.");
-
         } else if (error.code === "auth/too-many-requests") {
-
             showError("Too many attempts. Try again later.");
-
         } else {
-
             showError("Login failed: " + error.message);
-
         }
 
     } finally {
 
         button.disabled = false;
-
         button.textContent = "Log In";
 
     }
@@ -726,17 +699,13 @@ window.login = async function() {
 window.enterWebsite = function() {
 
     if (!auth.currentUser) {
-
         showError("Please log in again.");
-
         return;
-
     }
 
     showingNewPin = false;
 
     document.getElementById("authScreen").style.display = "none";
-
     document.getElementById("websiteContent").style.display = "block";
 
     loadGames();
@@ -744,7 +713,7 @@ window.enterWebsite = function() {
 };
 
 
-// LOAD GAMES AND SEARCH
+// LOAD GAMES
 
 function loadGames() {
 
@@ -753,11 +722,9 @@ function loadGames() {
     const script = document.createElement("script");
 
     script.id = "gamesLoaded";
-
     script.src = "games.js";
 
     document.body.appendChild(script);
-
 
     const searchScript = document.createElement("script");
 
@@ -769,14 +736,13 @@ function loadGames() {
 }
 
 
-// RESTORE LOGIN SESSION
+// AUTHENTICATION STATE
 
 onAuthStateChanged(auth, (user) => {
 
     if (user && !showingNewPin) {
 
         document.getElementById("authScreen").style.display = "none";
-
         document.getElementById("websiteContent").style.display = "block";
 
         loadGames();
@@ -784,7 +750,6 @@ onAuthStateChanged(auth, (user) => {
     } else if (!user) {
 
         document.getElementById("authScreen").style.display = "flex";
-
         document.getElementById("websiteContent").style.display = "none";
 
     }
@@ -792,18 +757,12 @@ onAuthStateChanged(auth, (user) => {
 });
 
 
-// ENTER KEY TO LOG IN
+// ENTER TO LOGIN
 
 document.getElementById("loginPin").addEventListener(
     "keydown",
     (event) => {
-
-        if (event.key === "Enter") {
-
-            login();
-
-        }
-
+        if (event.key === "Enter") login();
     }
 );
 
