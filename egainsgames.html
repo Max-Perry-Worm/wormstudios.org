@@ -1,9 +1,10 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>E Gains Games</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E Gains Games</title>
 
     <style>
         body {
@@ -15,8 +16,9 @@
             display: flex;
         }
 
-        /* PIN SCREEN */
-        #pinScreen {
+        /* AUTHENTICATION SCREEN */
+
+        #authScreen {
             position: fixed;
             inset: 0;
             z-index: 99999;
@@ -24,44 +26,79 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
-        .pin-box {
+        .auth-box {
             background: rgba(0,0,0,0.3);
             padding: 35px;
             border-radius: 15px;
             text-align: center;
             width: 300px;
+            max-width: 100%;
             color: white;
             box-shadow: 0 5px 25px rgba(0,0,0,0.3);
         }
 
-        .pin-box input {
+        .auth-box input {
+            box-sizing: border-box;
             padding: 13px;
-            width: 90%;
+            width: 100%;
             border: none;
             border-radius: 8px;
-            margin: 15px 0;
-            font-size: 20px;
-            text-align: center;
+            margin: 10px 0;
+            font-size: 17px;
         }
 
-        .pin-box button {
+        .auth-box button {
             background: rgb(89, 134, 218);
             color: white;
             border: none;
-            padding: 13px 30px;
+            padding: 13px 20px;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
+            margin-top: 10px;
         }
 
-        #pinError {
+        .auth-box button:hover {
+            background: #79aadb;
+        }
+
+        .auth-box button:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        .auth-switch {
+            color: #79aadb;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        #authError {
             color: #ff7777;
             display: none;
         }
 
+        #generatedPin {
+            display: none;
+            background: rgba(89,134,218,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        #pinDisplay {
+            font-size: 34px;
+            font-weight: bold;
+            letter-spacing: 6px;
+            color: #79aadb;
+        }
+
         /* WEBSITE */
+
         #websiteContent {
             display: none;
             width: 100%;
@@ -156,6 +193,7 @@
                 width: 60px;
                 padding: 15px 5px;
             }
+
             .main-content {
                 margin-left: 70px;
             }
@@ -165,29 +203,119 @@
 
 <body>
 
-<!-- PIN LOGIN -->
-<div id="pinScreen">
-    <div class="pin-box">
+<!-- REGISTRATION AND LOGIN -->
+
+<div id="authScreen">
+
+    <div class="auth-box">
+
         <h2>E-Gains Games</h2>
-        <p>Enter PIN to continue</p>
 
-        <input
-            type="password"
-            id="pinInput"
-            placeholder="Enter PIN"
-            inputmode="numeric"
-            autocomplete="off"
-        >
+        <!-- LOGIN -->
 
-        <br>
+        <div id="loginPanel">
 
-        <button onclick="checkPin()">Unlock</button>
+            <h3>Welcome Back!</h3>
 
-        <p id="pinError">Incorrect PIN. Try again.</p>
+            <p>Enter your personal PIN to continue.</p>
+
+            <input
+                type="password"
+                id="loginPin"
+                placeholder="6-digit PIN"
+                inputmode="numeric"
+                maxlength="6"
+                autocomplete="off"
+            >
+
+            <br>
+
+            <button id="loginButton" onclick="login()">
+                Log In
+            </button>
+
+            <p>Don't have an account?</p>
+
+            <p class="auth-switch" onclick="showRegister()">
+                Create an account
+            </p>
+
+        </div>
+
+        <!-- REGISTER -->
+
+        <div id="registerPanel" style="display:none;">
+
+            <h3>Create Your Account</h3>
+
+            <p>Enter your name to receive your personal PIN.</p>
+
+            <input
+                type="text"
+                id="firstName"
+                placeholder="First Name"
+                maxlength="50"
+                autocomplete="given-name"
+            >
+
+            <input
+                type="text"
+                id="lastName"
+                placeholder="Last Name"
+                maxlength="50"
+                autocomplete="family-name"
+            >
+
+            <br>
+
+            <button id="registerButton" onclick="register()">
+                Register
+            </button>
+
+            <p>Already have an account?</p>
+
+            <p class="auth-switch" onclick="showLogin()">
+                Log in instead
+            </p>
+
+        </div>
+
+        <!-- GENERATED PIN -->
+
+        <div id="generatedPin">
+
+            <h3>Your Account Is Ready!</h3>
+
+            <p>Your personal PIN is:</p>
+
+            <div id="pinDisplay"></div>
+
+            <p>
+                Save this PIN somewhere safe.
+                You will need it whenever you log in.
+            </p>
+
+            <button onclick="copyPin()">
+                Copy My PIN
+            </button>
+
+            <br>
+
+            <button onclick="enterWebsite()">
+                Continue to Website
+            </button>
+
+        </div>
+
+        <p id="authError"></p>
+
     </div>
+
 </div>
 
-<!-- ALL WEBSITE CONTENT -->
+
+<!-- WEBSITE CONTENT -->
+
 <div id="websiteContent">
 
     <div class="sidebar" id="sidebar"></div>
@@ -197,32 +325,53 @@
         <h1>E-Gains Games</h1>
 
         <h2 style="color:white;text-align:center;font-weight:normal;font-size:18px;">
+
             Files from
-            <a href="tptowrm.html" target="_blank"
+
+            <a href="tptowrm.html"
+               target="_blank"
                style="color:#79aadb;text-decoration:none;">
+
                 Wormstudios
+
             </a>
+
         </h2>
 
         <h2 style="color:white;text-align:center;font-weight:normal;font-size:18px;">
+
             Click Me!
+
             <a href="https://www.tiktok.com/@sloptokk/video/7614176237568838925"
                target="_blank"
                style="color:#79aadb;text-decoration:none;">
+
                 Important link!
+
             </a>
+
         </h2>
 
         <h2 style="color:white;text-align:center;font-weight:normal;font-size:18px;">
 
-            <input type="text"
-                   placeholder="Search..."
-                   id="searchInput"
-                   style="padding:13px;width:100%;max-width:420px;border-radius:8px;border:none;">
+            <input
+                type="text"
+                placeholder="Search..."
+                id="searchInput"
+                style="padding:13px;width:100%;max-width:420px;border-radius:8px;border:none;"
+            >
 
-            <button id="lolbutton"
-                onclick="const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@latest/games.js';document.body.appendChild(script);">
+            <button
+                id="lolbutton"
+                onclick="
+                    const script=document.createElement('script');
+                    script.src='https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@latest/games.js';
+                    document.body.appendChild(script);
+                "
+            >
+
                 Click to load if it isnt loading
+
             </button>
 
         </h2>
@@ -230,55 +379,440 @@
         <div id="sections-container"></div>
 
     </div>
+
 </div>
 
-<script>
-    async function checkPin() {
-        const enteredPin = document.getElementById("pinInput").value;
-        const error = document.getElementById("pinError");
 
-        try {
-            const response = await fetch("pin.txt");
+<!-- FIREBASE AUTHENTICATION SYSTEM -->
 
-            if (!response.ok) {
-                throw new Error("Could not load pin.txt");
-            }
+<script type="module">
 
-            const correctPin = (await response.text()).trim();
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 
-            if (enteredPin === correctPin && correctPin.length > 0) {
-                document.getElementById("pinScreen").style.display = "none";
-                document.getElementById("websiteContent").style.display = "block";
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    deleteUser
+} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
-                loadGames();
-            } else {
-                error.textContent = "Incorrect PIN. Try again.";
-                error.style.display = "block";
-            }
-        } catch (err) {
-            error.textContent = "Could not load PIN. Check pin.txt.";
-            error.style.display = "block";
-        }
+import {
+    getFirestore,
+    doc,
+    setDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+
+// FIREBASE CONFIGURATION
+
+const firebaseConfig = {
+
+    apiKey: "YOUR_API_KEY",
+
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+
+    projectId: "YOUR_PROJECT_ID",
+
+    storageBucket: "YOUR_PROJECT.firebasestorage.app",
+
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+
+    appId: "YOUR_APP_ID"
+
+};
+
+
+// INITIALIZE FIREBASE
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getFirestore(app);
+
+
+// VARIABLES
+
+let newPin = null;
+
+let showingNewPin = false;
+
+
+// CREATE PRIVATE LOGIN ADDRESS
+
+function pinEmail(pin) {
+
+    return `pin-${pin}@${firebaseConfig.projectId}.firebaseapp.com`;
+
+}
+
+
+// SWITCH TO REGISTER
+
+window.showRegister = function() {
+
+    hideError();
+
+    document.getElementById("loginPanel").style.display = "none";
+
+    document.getElementById("registerPanel").style.display = "block";
+
+    document.getElementById("generatedPin").style.display = "none";
+
+};
+
+
+// SWITCH TO LOGIN
+
+window.showLogin = function() {
+
+    hideError();
+
+    document.getElementById("registerPanel").style.display = "none";
+
+    document.getElementById("loginPanel").style.display = "block";
+
+    document.getElementById("generatedPin").style.display = "none";
+
+};
+
+
+// SHOW ERROR
+
+function showError(message) {
+
+    const error = document.getElementById("authError");
+
+    error.textContent = message;
+
+    error.style.display = "block";
+
+}
+
+
+// HIDE ERROR
+
+function hideError() {
+
+    document.getElementById("authError").style.display = "none";
+
+}
+
+
+// GENERATE RANDOM SIX-DIGIT PIN
+
+function generatePin() {
+
+    const numbers = new Uint32Array(1);
+
+    crypto.getRandomValues(numbers);
+
+    return String(100000 + (numbers[0] % 900000));
+
+}
+
+
+// REGISTER NEW USER
+
+window.register = async function() {
+
+    hideError();
+
+    const firstName =
+        document.getElementById("firstName").value.trim();
+
+    const lastName =
+        document.getElementById("lastName").value.trim();
+
+    if (!firstName || !lastName) {
+
+        showError("Enter your first and last name.");
+
+        return;
+
     }
 
-    document.getElementById("pinInput").addEventListener("keydown", function(event) {
+    if (firstName.length > 50 || lastName.length > 50) {
+
+        showError("Names must be 50 characters or fewer.");
+
+        return;
+
+    }
+
+    const button = document.getElementById("registerButton");
+
+    button.disabled = true;
+
+    button.textContent = "Creating Account...";
+
+    showingNewPin = true;
+
+    try {
+
+        let created = false;
+
+        for (let attempt = 0; attempt < 10; attempt++) {
+
+            const pin = generatePin();
+
+            try {
+
+                const credential =
+                    await createUserWithEmailAndPassword(
+                        auth,
+                        pinEmail(pin),
+                        pin
+                    );
+
+                newPin = pin;
+
+                // SAVE USER PROFILE
+
+                await setDoc(
+                    doc(db, "users", credential.user.uid),
+                    {
+                        firstName: firstName,
+                        lastName: lastName,
+                        createdAt: serverTimestamp()
+                    }
+                );
+
+                created = true;
+
+                break;
+
+            } catch (error) {
+
+                if (error.code === "auth/email-already-in-use") {
+
+                    continue;
+
+                }
+
+                // DELETE INCOMPLETE ACCOUNT
+
+                if (auth.currentUser) {
+
+                    await deleteUser(auth.currentUser).catch(() => {});
+
+                }
+
+                throw error;
+
+            }
+
+        }
+
+        if (!created) {
+
+            throw new Error(
+                "Could not generate a unique PIN. Please try again."
+            );
+
+        }
+
+        // SHOW GENERATED PIN
+
+        document.getElementById("registerPanel").style.display = "none";
+
+        document.getElementById("pinDisplay").textContent = newPin;
+
+        document.getElementById("generatedPin").style.display = "block";
+
+    } catch (error) {
+
+        showingNewPin = false;
+
+        showError(
+            error.message || "Registration failed."
+        );
+
+    } finally {
+
+        button.disabled = false;
+
+        button.textContent = "Register";
+
+    }
+
+};
+
+
+// COPY PIN
+
+window.copyPin = async function() {
+
+    if (!newPin) return;
+
+    try {
+
+        await navigator.clipboard.writeText(newPin);
+
+        const button = document.querySelector("#generatedPin button");
+
+        button.textContent = "Copied!";
+
+    } catch {
+
+        showError("Unable to copy PIN. Please write it down.");
+
+    }
+
+};
+
+
+// LOGIN WITH PIN
+
+window.login = async function() {
+
+    hideError();
+
+    const pin =
+        document.getElementById("loginPin").value.trim();
+
+    if (!/^\d{6}$/.test(pin)) {
+
+        showError("Enter your six-digit PIN.");
+
+        return;
+
+    }
+
+    const button = document.getElementById("loginButton");
+
+    button.disabled = true;
+
+    button.textContent = "Logging In...";
+
+    try {
+
+        await signInWithEmailAndPassword(
+            auth,
+            pinEmail(pin),
+            pin
+        );
+
+    } catch (error) {
+
+        if (
+            error.code === "auth/invalid-credential" ||
+            error.code === "auth/user-not-found" ||
+            error.code === "auth/wrong-password"
+        ) {
+
+            showError("Incorrect PIN. Please try again.");
+
+        } else if (error.code === "auth/too-many-requests") {
+
+            showError("Too many attempts. Try again later.");
+
+        } else {
+
+            showError("Login failed: " + error.message);
+
+        }
+
+    } finally {
+
+        button.disabled = false;
+
+        button.textContent = "Log In";
+
+    }
+
+};
+
+
+// ENTER WEBSITE
+
+window.enterWebsite = function() {
+
+    if (!auth.currentUser) {
+
+        showError("Please log in again.");
+
+        return;
+
+    }
+
+    showingNewPin = false;
+
+    document.getElementById("authScreen").style.display = "none";
+
+    document.getElementById("websiteContent").style.display = "block";
+
+    loadGames();
+
+};
+
+
+// LOAD GAMES AND SEARCH
+
+function loadGames() {
+
+    if (document.getElementById("gamesLoaded")) return;
+
+    const script = document.createElement("script");
+
+    script.id = "gamesLoaded";
+
+    script.src = "games.js";
+
+    document.body.appendChild(script);
+
+
+    const searchScript = document.createElement("script");
+
+    searchScript.src =
+        "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/searchbut.js";
+
+    document.body.appendChild(searchScript);
+
+}
+
+
+// RESTORE LOGIN SESSION
+
+onAuthStateChanged(auth, (user) => {
+
+    if (user && !showingNewPin) {
+
+        document.getElementById("authScreen").style.display = "none";
+
+        document.getElementById("websiteContent").style.display = "block";
+
+        loadGames();
+
+    } else if (!user) {
+
+        document.getElementById("authScreen").style.display = "flex";
+
+        document.getElementById("websiteContent").style.display = "none";
+
+    }
+
+});
+
+
+// ENTER KEY TO LOG IN
+
+document.getElementById("loginPin").addEventListener(
+    "keydown",
+    (event) => {
+
         if (event.key === "Enter") {
-            checkPin();
+
+            login();
+
         }
-    });
 
-    function loadGames() {
-        if (document.getElementById("gamesLoaded")) return;
-
-        const script = document.createElement("script");
-        script.id = "gamesLoaded";
-        script.src = "games.js";
-        document.body.appendChild(script);
-
-        const searchScript = document.createElement("script");
-        searchScript.src = "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/searchbut.js";
-        document.body.appendChild(searchScript);
     }
+);
+
 </script>
 
 </body>
