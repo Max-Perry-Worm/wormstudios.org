@@ -184,6 +184,41 @@
             background: #79aadb;
         }
 
+        /* IMPROVED WEBSITE IMAGE */
+
+        .site-hero-image {
+            display: block;
+            width: min(82%, 320px);
+            max-height: 300px;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            object-position: center;
+            margin: 24px auto 18px;
+            border: 3px solid rgba(121, 170, 219, 0.85);
+            border-radius: 22px;
+            box-shadow:
+                0 12px 30px rgba(0, 0, 0, 0.35),
+                0 0 22px rgba(89, 134, 218, 0.35);
+            transition: transform 220ms ease, box-shadow 220ms ease;
+        }
+
+        .site-hero-image:hover {
+            transform: translateY(-4px) scale(1.015);
+            box-shadow:
+                0 16px 36px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(121, 170, 219, 0.5);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .site-hero-image {
+                transition: none;
+            }
+
+            .site-hero-image:hover {
+                transform: none;
+            }
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 60px;
@@ -193,13 +228,19 @@
             .main-content {
                 margin-left: 70px;
             }
+
+            .site-hero-image {
+                width: min(78%, 240px);
+                max-height: 220px;
+                margin-top: 18px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<!-- LOGIN AND REGISTRATION -->
+
 
 <div id="authScreen">
 
@@ -207,7 +248,7 @@
 
         <h2>E-Gains Games</h2>
 
-        <!-- LOGIN -->
+        
 
         <div id="loginPanel">
 
@@ -237,8 +278,7 @@
 
         </div>
 
-
-        <!-- REGISTRATION -->
+        
 
         <div id="registerPanel" style="display:none;">
 
@@ -277,8 +317,7 @@
 
         </div>
 
-
-        <!-- GENERATED PIN -->
+        
 
         <div id="generatedPin">
 
@@ -312,11 +351,14 @@
 </div>
 
 
-<!-- WEBSITE -->
 
 <div id="websiteContent">
 
-    <img src="IMG_2154.jpeg" alt="Real person btw">
+    <img
+        class="site-hero-image"
+        src="IMG_2154.jpeg"
+        alt="E-Gains Games featured image"
+    >
 
     <div class="sidebar" id="sidebar"></div>
 
@@ -369,7 +411,6 @@
 </div>
 
 
-<!-- FIREBASE -->
 
 <script type="module">
 
@@ -394,56 +435,43 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
 
-// FIREBASE CONFIGURATION
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBRVctTiTzVYhF-fWLadCSxgF0lAJj53cs",
-    authDomain: "games-4f980.firebaseapp.com",
-    projectId: "games-4f980",
-    storageBucket: "games-4f980.firebasestorage.app",
-    messagingSenderId: "204900296991",
-    appId: "1:204900296991:web:a80496935562cdf99ba82a",
-    measurementId: "G-Y3X0NW3PWN"
-  };
+    apiKey: "AIzaSyBRVctTiTzVYhF-fWLadCSxgF0lAJj53cs",
+    authDomain: "games-4f980.firebaseapp.com",
+    projectId: "games-4f980",
+    storageBucket: "games-4f980.firebasestorage.app",
+    messagingSenderId: "204900296991",
+    appId: "1:204900296991:web:a80496935562cdf99ba82a",
+    measurementId: "G-Y3X0NW3PWN"
+};
 
 
-
-// INITIALIZE
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 
-// IMPORTANT: SESSION-ONLY LOGIN
-
-// This prevents Firebase from remembering users
-// after the browser tab session ends.
 
 await setPersistence(auth, browserSessionPersistence);
 
 
-// VARIABLES
 
 let newPin = null;
 let showingNewPin = false;
 
 
-// PRIVATE LOGIN ADDRESS
 
 function pinEmail(pin) {
     return `pin-${pin}@${firebaseConfig.projectId}.firebaseapp.com`;
 }
 
 
-// NAME VALIDATION
 
 function validateName(name) {
 
     const cleaned = name.trim().replace(/\s+/g, " ");
-
-    // Allows letters, accents, spaces, apostrophes,
-    // hyphens and periods in names.
 
     const validName =
         /^[\p{L}\p{M}]+(?:[ '\u2019.-][\p{L}\p{M}]+)*$/u;
@@ -460,7 +488,6 @@ function validateName(name) {
 }
 
 
-// SWITCH SCREENS
 
 window.showRegister = function() {
 
@@ -483,7 +510,6 @@ window.showLogin = function() {
 };
 
 
-// ERROR HANDLING
 
 function showError(message) {
 
@@ -501,7 +527,6 @@ function hideError() {
 }
 
 
-// GENERATE PIN
 
 function generatePin() {
 
@@ -514,7 +539,6 @@ function generatePin() {
 }
 
 
-// REGISTER
 
 window.register = async function() {
 
@@ -623,7 +647,6 @@ window.register = async function() {
 };
 
 
-// COPY PIN
 
 window.copyPin = async function() {
 
@@ -646,7 +669,6 @@ window.copyPin = async function() {
 };
 
 
-// LOGIN
 
 window.login = async function() {
 
@@ -697,7 +719,6 @@ window.login = async function() {
 };
 
 
-// ENTER WEBSITE
 
 window.enterWebsite = function() {
 
@@ -716,7 +737,6 @@ window.enterWebsite = function() {
 };
 
 
-// LOAD GAMES
 
 function loadGames() {
 
@@ -739,7 +759,6 @@ function loadGames() {
 }
 
 
-// AUTHENTICATION STATE
 
 onAuthStateChanged(auth, (user) => {
 
@@ -760,7 +779,6 @@ onAuthStateChanged(auth, (user) => {
 });
 
 
-// ENTER TO LOGIN
 
 document.getElementById("loginPin").addEventListener(
     "keydown",
