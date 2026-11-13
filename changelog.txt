@@ -1,1 +1,8 @@
-
+removed Spencer Coffman from site w/
+ <img
+        class="site-hero-image"
+        src="IMG_2154.jpeg"
+        alt="E-Gains Games featured image"
+    >
+Kept CSS For Later Use
+…………………………………………………………………………………………
